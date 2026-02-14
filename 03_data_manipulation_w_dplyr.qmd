@@ -1,0 +1,53 @@
+---
+title: "03: Data manipulation with dplyr"
+author: "Brenna Kelly"
+format:
+  html:
+    toc: true
+    toc-location: left
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Base R
+
+We've seen some of the capabilities of what's called `base` R. It can be used for many of the tasks we'll cover in this workshop, and it's highly extensive. We'll now learn from a few **packages** developed to make our lives easier. Because R is open source, anyone can contribute to it — folks can write functions, create a unifying package, and share it with others. (Those that meet certain standards are included in CRAN — the Comprehensive R Archive Network.)
+
+Base R is ready to use as soon as you open a session in R studio. To work with packages (and the handy functions they contain), we need to take a couple extra steps.
+
+## Getting started with a package
+
+The first step is to install a package. This can be done using the GUI or with a line or two or code. Let's first install `dplyr`.
+
+```{r}
+
+# install.packages("dplyr")
+
+```
+
+You only need to install it once (but be sure to update regularly). Once installed, you can load the package with the function `library()`.
+
+```{r}
+
+library(dplyr)
+
+```
+
+Now you're ready to work with the package. To learn more about its functions, you can use `?package_name`. Some packages have better documentation than others, but tidyverse's is considered excellent (this include `dplyr`; more on that later). If you have installed a package but haven't loaded it with `library()` yet, you can still find it using `??package_name` or `??function` (helpful when wondering "what package did that function belong to again?").  
+
+::: callout-tip
+Hours of trial and error can save you minutes of reading documentation.
+:::
+
+Run the following code to install the packages we'll use in the workshop:  
+
+```{r}
+
+install.packages(c("tidyverse", # note this is a meta-package
+                   
+                   "RColorBrewer", "colorspace", 
+                   "wesanderson")) # because why not
+
+
+```
