@@ -1,0 +1,28 @@
+---
+title: "XX_r_colors"
+format: pdf
+editor: source
+---
+
+
+```{r}
+
+library(ggplot2)
+
+c <- colors()
+x <- rep(1:9, length.out = length(c))
+y <- rep(1:9, each = (length(c)/9))
+# f <- as.factor(round(rep(1:9, times = (length(c)/9))/2))
+
+data.frame(c, x, y) |>
+  ggplot(aes(x = y, y = x, fill = c)) +
+  geom_tile(color = "white") +
+  scale_fill_manual(values = c) +
+  coord_equal() +
+  labs(x = "", y = "", fill = "Average \nATE",
+       title = "Combined exposure ATE recovery") +
+  theme_void()
+
+
+```
+
