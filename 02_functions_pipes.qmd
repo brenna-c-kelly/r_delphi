@@ -1,0 +1,453 @@
+---
+title: "02: Functions and pipes"
+author: "Brenna Kelly"
+format:
+  html:
+    toc: true
+    toc-location: left
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Functions
+
+In math, a function is a rule which assigns each input from a domain to exactly one output in a codomain. It's similar in programming. We provide input data to a function and expect an output, sometimes with a bit more information along with it. A function will also take arguments, or parameters which change the function's behavior. Let's play around with base R's `sample()` function with three colors, stored in a vector `x`.    
+
+Create a vector `c()` of two coin toss results: `"H"` and `"T"`.  
+
+```{r}
+
+x <- c("H", "T")
+
+```
+
+Check the sample documentation. First, try with just x vector and no additional arguments.
+
+```{r}
+
+sample(x)
+
+```
+
+Now set the size argument to 8.  
+
+```{r}
+
+# sample(x, size = 8)
+
+```
+
+You should get an error. Try sampling again with replacement.
+
+```{r}
+
+sample(x, size = 8, replace = TRUE)
+
+```
+
+We can confirm in the documentation that the function is using uniform sampling - each value has equal probability assigned to it. We can adjust this with `prob` argument, which takes a vector of weights.
+
+```{r}
+
+sample(x, size = 8, replace = TRUE, prob = c(0.9, 0.1))
+
+```
+
+Increase size to 100 and put the `sample()` function inside the `table()` function, which gets the counts of levels of a variable.
+
+::: callout-tip
+When working with a new function, check the function's documentation with ?, followed by the function's name: `?sample`.
+:::
+
+```{r}
+
+table(
+  sample(x, size = 100, replace = TRUE, prob = c(0.9, 0.1))
+)
+
+```
+
+Using `size = 100` makes it easy to see the proportions of `"H"` and `"T"`. But if we used another number, say `size = 111`, it would be harder to estimate. If we put `table()` inside of the `prop.table()` function, we'll get the proportions directly:  
+
+```{r}
+
+prop.table(
+  table(
+    sample(x, size = 111, replace = TRUE, prob = c(0.9, 0.1))
+  )
+)
+
+```
+
+Some functions behave fairly consistently, like `seq()`, which generates a regular (evenly spaced) sequence of numbers. Try using it to get numbers 0-100 by tens:  
+
+```{r}
+
+seq(from = 0, to = 100, by = 10)
+# by default:
+seq(0, 100)
+
+```
+
+By comparison, `rep()` is has less consistent behavior. It replicates the values provided to it, but it will give you different output based on the `times`, `length.out`, and `each` arguments.  
+
+```{r}
+
+rep(x, times = 4)
+rep(x, length.out = 4)
+rep(x, each = 4)
+rep(x, each = 4, times = 4, length.out = 50)
+
+```
+
+As you learn new functions, you'll encounter unexpected behavior. Always check the documentation, check your work, and check your data.  
+
+## Describing your data with basic functions  
+
+Read in the iris dataset again (practice `read.csv()`):  
+
+```{r}
+
+iris <- read.csv("data/iris.csv")
+
+```
+
+![Source: docs.kedro.org](images/iris_measurements.png)
+
+Let's experiment with the following mathematical functions, which you'll likely use often:  
+
+-   `mean()`: the average
+
+-   `median()`: the median
+
+-   `min()`: the minimum value
+
+-   `max()`: the maximum value
+
+-   `quantile()`: quantiles corresponding to given probabilities
+
+    -   i.e., `quantile(, probs = 0.25)` for 25th percentile)
+
+-   `var()`: variance
+
+-   `sd()`: standard deviation
+
+-   `range()`: range
+
+Note that when a vector includes NA values, none of these functions will work without including the `na.rm = TRUE` argument. (Not important when working with clean toy data, but you will encounter this with data in the wild.)    
+
+**Practice.** See if you can answer the following:  
+- What is the maximum sepal length?  
+- Which is greater - average petal width or median petal width?  
+- On average, how many times bigger is sepal length than sepal width? (Use average of ratios and not ratio of average.)  
+
+```{r}
+
+max(iris$Sepal.Length)
+
+# compare
+mean(iris$Petal.Width)
+median(iris$Petal.Width)
+
+mean(iris$Sepal.Length / iris$Sepal.Width)
+
+```
+
+The mean-median comparison tells us something about the distribution of the data, which we can also check visually with a histogram using the `hist()` function.  
+
+```{r}
+
+hist(iris$Petal.Width)
+
+```
+
+A very common function is `ifelse`, which takes three arguments: `ifelse(test, yes, no)`. The test could be anything which has a logical output - for instance, `iris$Sepal.Width > 3` or `iris$Species == "versicolor"`. We often use this function to create a new variable in the data with `data$new_var <- ifelse()`. Try creating a new variable in iris which is 1 if a flower has greater-than-average sepal width. Tabulate this variable across species.  
+
+```{r}
+
+iris$sepal_wider <- ifelse(iris$Sepal.Width > mean(iris$Sepal.Width), 1, 0)
+
+table(iris$sepal_wider, iris$Species)
+
+```
+
+Another useful function is `which()`. It evaluates a logical expression and returns the indices of observations for which the expression is TRUE.  
+
+```{r}
+
+# the logical expression
+iris$Sepal.Length > 7
+
+# identify the indices
+which(iris$Sepal.Length > 7)
+
+# we can see the row which meets the criteria
+iris[103, ]
+
+```
+
+By combining the which() function and index notation `iris[row_id, col_id]`, we can see the rows which meet the specified criteria:  
+
+```{r}
+
+iris[which(iris$Sepal.Length > 7), ]
+
+```
+
+The `which.min()` and `which.max()` functions tell you which row has the minimum or maximum within a vector (i.e., column, variable). This can be useful shorthand as it doesn't require the logical expression, only the variable of interest:  
+
+```{r}
+
+iris[which.max(iris$Sepal.Length), ]
+
+```
+
+In this case, this result is equivalent to the `which()` function:
+
+```{r}
+
+iris[which(iris$Sepal.Length == max(iris$Sepal.Length)), ]
+
+```
+
+Can you identify the row which has the maximum petal width using `which()` and `which.max()`?  
+
+```{r}
+
+iris[which(iris$Petal.Width == max(iris$Petal.Width)), ]
+
+iris[which.max(iris$Petal.Width), ] # more concise, only returns first
+
+```
+
+(Note: which is also a useful way to subset data.)  
+
+All three flowers with the maximum petal width are virginica species. This may be due to chance, but let's see if this is a systematically pattern. What is the average metal width by species?
+There's a handy function for that: `aggregate(x, by = list(z), FUN)`, where x is the column we want to aggregate, z is the column we want to stratify across, and FUN is the function we're aggregating with. Try it below:  
+
+```{r}
+
+aggregate(iris$Petal.Width, by = list(iris$Species), FUN = mean)
+
+```
+
+Note that we can provide multiple variables for aggregation or stratification, but the stratifying variables will be treated like factors, which should be intuitive. It's easiest to provide the variables were aggregating with index notation. Let's see whether virginica flowers tend to be larger across all measurements:  
+
+```{r}
+
+aggregate(iris[, 1:4], by = list(iris$Species), FUN = mean)
+
+```
+
+If we want to apply a function across multiple variables without stratifying, we can use the `apply()` function. Like the last example with aggregate, this applies a function over the values provided to it, but `apply()` is much more flexible. (We can even perform the same operation above with a related function, `tapply()`.) When we supply apply with MARGIN = 1, it applies the function across rows. MARGIN = 2 applies the function across columns.  
+
+```{r}
+
+apply(iris[, 1:4], MARGIN = 2, FUN = mean)
+
+```
+
+Note that this takes fewer lines of code than calculating `mean()` for each variable.  
+
+## Creating a function  
+
+It's good practice to code DRY — Don't Repeat Yourself. If you're performing the same operation many times, your code will be less readable, less reproducible, and more difficult to debug. Functions are a great tool for improving your code.  
+
+Say we want to calculate the interquartile range (Q3 - Q1) from each of the numeric `iris` variables. Above, we saw how you can estimate Q3 (i.e., Q0.75) and Q1 (i.e., Q0.25) with `quantile(, probs = c(0.25, 0.75))`, but this doesn't tell us the spread of these two values. We could calculate this directly for each variable:  
+
+```{r}
+
+quantile(iris$Sepal.Length, probs = 0.75, names = FALSE) -
+  quantile(iris$Sepal.Length, probs = 0.25, names = FALSE)
+quantile(iris$Sepal.Width, probs = 0.75, names = FALSE) -
+  quantile(iris$Sepal.Width, probs = 0.25, names = FALSE)
+quantile(iris$Petal.Length, probs = 0.75, names = FALSE) -
+  quantile(iris$Petal.Length, probs = 0.25, names = FALSE)
+quantile(iris$Petal.Width, probs = 0.75, names = FALSE) -
+  quantile(iris$Petal.Width, probs = 0.25, names = FALSE)
+
+```
+
+But a better solution might be to write an IQR function (let's pretend the `IQR()` function doesn't exist...). When we write a function, we tell it: 1) what inputs to take, 2) what to do with them, and 3) what to output return.  
+
+In this case, the function will take any numeric vector x, perform the IQR calculation (Q3 - Q1), store the result into an object, and finally (importantly!) return the object.  
+
+```{r}
+
+iqr <- function(x) {
+  
+  x_iqr <- quantile(x, probs = 0.75, names = FALSE) - 
+    quantile(x, probs = 0.25, names = FALSE)
+  
+  return(x_iqr)
+  
+}
+
+```
+
+We can now apply our function to each variable. Or better yet, we can `apply()` it across the columns.  
+
+```{r}
+
+iqr(iris$Sepal.Length)
+iqr(iris$Sepal.Width)
+iqr(iris$Petal.Length)
+iqr(iris$Petal.Width)
+
+lapply(iris[, 1:4], iqr)
+
+```
+
+## Pipes
+ 
+Earlier we compared programming functions to mathematical functions. In math, a function has the form: 
+
+$y = f(x)$  
+  
+In programming, we replace $f$ with our function:  
+  
+`y <- sample(x)`  
+  
+**Pipes** offer a variation in this syntax which is increasingly common:  
+
+`y <- x |> sample()`  
+or  
+`y <- x %>% sample()`  
+ 
+Both `|>` and `%>%` are pipes. `|>` is the base R implementation, and `%>%` is its tidyverse predecessor, which is useful for more advanced operations. For the simple cases used in this workshop, we can consider them to be equivalent. (More on the `tidyverse` and `dplyr` later!)  
+ 
+Pipe notation is thought to be more readable. Normal code is read "inside-out" with respect to orders of operations:  
+
+```{r}
+
+# e.g.,
+log(
+  sqrt(
+    5 * 2^3
+  )
+)
+
+# i.e., 
+log(sqrt(5 * 2^3))
+
+```
+
+whereas pipe notation code is read "left-to-right":  
+
+```{r}
+
+(5 * 2^3) |>
+  sqrt() |>
+  log()
+
+```
+
+Pipes pass the value of an expression forward to the next expression, until the final value is returned. We can try this with the `iris` names. Here is the base syntax to convert the names to lowercase:  
+
+```{r}
+
+tolower(
+  names(iris)
+)
+
+# equivalent to
+tolower(names(iris))
+
+```
+
+Try converting the names to lowercase with pipes:  
+
+```{r}
+
+names(iris) |>
+  tolower()
+
+iris |>
+  names() |>
+  tolower()
+
+```
+
+
+## Exercise  
+
+Read in the `gapminder` dataset, which contains annual GDP, life expectancy, and population estimates for 142 countries over several decades. See if you can answer the following:  
+1. How many years does the data span?  
+
+```{r}
+
+gapminder <- read.csv("data/gapminder.csv")
+head(gapminder)
+
+# 1. answer
+max(gapminder$year) - min(gapminder$year)
+
+```
+
+2. Which country had the maximum life expectancy, and in which year?  
+
+```{r}
+
+# 2. answer
+gapminder[which.max(gapminder$lifeExp), ]
+
+```
+
+3. Which continent had the highest average life expectancy? How many countries are there in this continent?  
+
+```{r}
+
+# 3. answer
+aggregate(gapminder$lifeExp, by = list(gapminder$continent), FUN = mean)
+table(gapminder$continent)
+
+```
+
+4. What is the average difference in life expectancy between the first year and last year of the data? 
+
+```{r}
+
+# 4. answer
+mean(gapminder[which.max(gapminder$year), "lifeExp"] - 
+       gapminder[which.min(gapminder$year), "lifeExp"])
+# a 15-year increase
+
+```
+
+5A. Optional: write a function which calculates the difference in life expectancy from the first year and last year of the data. Using tapply(), apply the function across continents. Which continent saw the biggest improvement in life expectancy?  
+
+```{r}
+
+# 5A. answer
+life_exp_change <- function(x) {
+  
+  last_year <- x[which.max(x$year), "lifeExp"]
+  first_year <- x[which.min(x$year), "lifeExp"]
+  
+  res <- last_year - first_year
+  
+  return(res)
+  
+}
+
+tapply(gapminder, gapminder$continent, life_exp_change)
+# improved most for Africa, least for Oceania
+
+```
+
+5B. Apply the function from 5A to countries and store the results in an object. Which country had the biggest change in life expectancy? Which countries saw a decrease in life expectancy?  
+
+```{r}
+
+# 5B. answer
+change_by_country <- tapply(gapminder, gapminder$country, life_exp_change)
+
+summary(change_by_country) # overall
+
+change_by_country[which.max(change_by_country)] # highest change
+change_by_country[which(change_by_country < 0)] # negative change
+
+```
+
+
