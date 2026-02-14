@@ -1,0 +1,424 @@
+---
+title: "01: The Basics"
+author: "Brenna Kelly"
+format:
+  html:
+    toc: true
+    toc-location: left
+editor: source
+---
+
+In this module, we'll cover variables and different types of data you might encounter.
+
+## Variables
+
+In R, a variable is an object used to store data. For now, we'll just worry about numeric data. The object has a `class()` (high-level description of its behavior) and a `type()` (low-level storage mode) — more on this later.
+
+Create a variable containing the value `7` and name it `x`.
+
+```{r}
+
+x <- 7
+
+```
+
+Learn about the object with the following basic functions:\
+- `str()` returns the structure\
+- `length()` returns the length\
+- `print()` — always a good idea to look at your data!
+
+```{r}
+
+str(x)
+length(x)
+print(x) # or x
+
+```
+
+A variable with a single value is called a **scalar**. A **vector** is a 1-dimensional object consisting of multiple scalars. Using `c()` to concatenate multiple scalars (separated by commas), create a scalar and assign it to `v`.
+
+```{r}
+
+v <- c(1, 2, 3)
+
+```
+
+Check its structure and length.
+
+```{r}
+
+str(v)
+length(v)
+
+```
+
+We can access individual data points from the vector using **indexing** notation, as in `v[i]`.
+
+```{r}
+
+v[3]
+v[4] <- 4
+v[6] <- 6
+
+```
+
+A data frame is a 2-dimensional object consisting of multiple variables. Usually, each column is a "variable" and each row is an "observation". Using `data.frame(x = , y = )`, create an data frame called `dat` with variables x and y. Make `x` a vector consisting of values 1-100 and y a vector consisting of numbers 101-200. The following will be helpful:\
+- a colon `:` between any two integers will return a sequence of numbers  
+
+```{r}
+
+x = 1:100
+y = 101:200
+
+dat <- data.frame(x, y)
+
+```
+
+Check the structure and length of `dat`. Another useful function is `head`, which gives us a peek at our data.  
+
+```{r}
+
+str(dat)
+length(dat)
+head(dat)
+
+```
+
+We can access specific observations (rows) and variables (columns) through indexing, as before — only now, we can specify both dimensions of the object. The format is `dat[row, columns]`. Try fetching the 10th row, the second column, and then the 100th row and first column.  
+
+```{r}
+
+dat[10, ]
+dat[, 2]
+dat[100, 1]
+
+```
+
+As a data frame, `dat` has named variables. When accessing specific variables, it's best to use these, as the structure of the data columns (and consequently, indexes) can change. Try typing `dat$` to see the variable names. You can also use indexing notation with the column names. To list all names, use `names()`.  
+
+```{r}
+
+dat$x
+dat$y
+
+# both work
+dat[10, "x"]
+dat$x[10]
+
+names(dat)
+
+typeof(dat)
+
+```
+
+Now is good time to peek at your environment. What do you notice about how R stores different variable types?  
+
+Variables (scalars, vectors, dataframes) are interesting — but they're more interesting when we start to actually do stuff with them. Try the following exercise:\
+  
+$y = mx + b$  
+  
+- create a scalar called `m` (this will be our slope)\
+- create a scalar called `b` (our intercept)\
+- create a vector called `x` with 10 numbers (any real numbers)\
+- create a new dataframe `dat` with variables `m`, `b`, and `x`\
+- create a new variable `dat$y` by multiplying `x` by `m` and add `b`
+
+```{r}
+
+m = 1.25
+b = 10
+x = c(1, 2, 3, 4, 5, 
+      6, 7, 8, 9, 10)
+
+dat <- data.frame(m, b, x)
+
+# note, we could also do the following:
+dat <- data.frame(m = 1.25,
+                  b = 10, 
+                  x = c(1, 2, 3, 4, 5, 
+                        6, 7, 8, 9, 10))
+
+# what you want to avoid (unnamed variables):
+# data.frame(1.25,
+#            10, 
+#            c(1, 2, 3, 4, 5, 
+#              6, 7, 8, 9, 10))
+
+
+dat$y <- dat$m * dat$x + dat$b
+
+```
+
+Take a look at the result.
+
+```{r}
+
+head(dat)
+
+dat$y <- dat$m * (dat$x**2) + dat$b
+
+plot(dat$x, dat$y, pch = 16, col = "red")
+
+```
+
+Another variable type we won't discuss at length (but is quite important) is `list`, which contains other objects. Try putting `dat`, `x`, `y`, `m`, and `b` into a list called `my_list`, then print. Be sure to give each item a name
+
+```{r}
+
+my_list <- list("my_data" = dat,
+                "x" = x, "y" = y, 
+                "m" = m, "b" = b)
+
+my_list
+
+```
+
+Many R functions, especially statistical models, will output to lists. For instance, a statistical model might return a vector of coefficients as well as scalar with the R-squared value. Items in a list can be accessed by name with `$` or by index notation. Look at the structure of `my_list`. How would you extract the the first row of column `b` from the `data.frame`?
+
+```{r}
+
+my_list$my_data$b[1]
+
+```
+
+Before we move on, here are few conventions:  
+- variable names should be all lowercase, with an underscore separating words (aka snake_case)  
+- note: `Dat` != `dat`, and this could get confusing - names should be descriptive and simple  
+- if using abbreviations, abbreviate consistently  
+- avoid words that "mean" something in R — words like `data` or function names. Generally, data names should be singular nouns  
+
+:::{.callout-tip}
+Clear your environment regularly (select the broom icon or run `rm(list = ls())`). This ensures reproducibility, frees up memory, and keeps things organized.
+:::
+
+## Reading in data  
+
+So far we've created data, but to go much further we'll need to learn to read data. You can read in a variety of file types, but for now we'll just focus on reading in CSVs with the `read.csv()` function. Anytime you're working with a new function, it's a good idea to read the documentation, which can be found in the **help** tab. Try the shortcut `?read.csv`.
+
+```{r}
+
+?read.csv
+
+```
+
+Under the `files` tab, you'll see a `data` folder. (Note, we could also see this using the `list.files()` function.) This contains the `iris` dataset.
+
+```{r}
+
+list.files("data")
+
+```
+
+Using `read.csv()` function with the relative path, read in the iris dataset.  
+
+```{r}
+
+iris <- read.csv("data/iris.csv")
+
+```
+
+As always, take a look at the data.
+
+```{r}
+
+head(iris)
+
+```
+
+## Data types  
+
+Data objects have classes (e.g., scalar, vector; like we saw above) but also *modes*:  
+- numeric, e.g., 3, 3e6  
+- character (any text), e.g., "cello", "violin"  
+- factor (categories), e.g., "male", "female"   
+- logical, e.g., TRUE, FALSE  
+
+We can check the type of any object with `typeof()`. Try this with the iris variables.  
+
+```{r}
+
+typeof(iris$Sepal.Length)
+typeof(iris$Species)
+typeof(iris$Code)
+
+# if the column contains any non-integers, the entire column will be converted to double
+typeof(rbind(0.1, iris$Code))
+head(rbind(0.1, iris$Code))
+
+```
+
+The `summary()` function can also gives us a clue into what our data (and their types) look like:  
+
+```{r}
+
+summary(iris)
+
+```
+
+We can make some conversions between data types with the functions `as.character()`, `as.numeric()`, and `as.factor`.  
+- What might happen if we convert `iris$Species` to numeric?  
+- What if we convert `iris$Sepal.Length` to a character?
+
+```{r}
+
+as.numeric(iris$Species)
+as.character(iris$Sepal.Length)
+
+```
+
+Note that `iris$Code` is a numeric code for `iris$Species` ( like a factor, without the label). Try summary with `iris$Species` and then again as a factor. Can you guess why we need a factor variable in data analysis?   
+
+```{r}
+
+summary(iris$Species)
+summary(as.factor(iris$Species))
+
+lm(Sepal.Length ~ Species, data = iris)
+# what if we wanted to compare virginica to versivolor?
+
+lm(Sepal.Length ~ Code, data = iris)
+lm(Sepal.Length ~ as.factor(Code), data = iris)
+
+```
+
+Factors are also useful when data are ordinal (e.g., "Sunday", "Monday", "Tuesday"). By default, character variables are stored alphabetically. If you're unsure if a variable should be a factor, look at the variable alphabetically — does this change how you interpret the data?   
+
+Example: in a blood pressure dataset, we might store systolic and diastolic blood pressure as numeric, with categories of hypertension stage as a factor:  
+- Normal (reference)  
+- Elevated
+- Stage I  
+- Stage II  
+- Hypertensive Crisis  
+However, the arm a patient's BP was read on would probably not need to be a factor:  
+- Right  
+- Left  
+
+Characters can be finicky, but the following base functions make them much easier to work with:  
+- `tolower()` and `toupper`: make all characters lowercase or uppercase  
+- `nchar()`: how many elements are in a string?  
+- `paste()` and `paste0()`: concatenate, with a separator or without  
+- `sub()` and `gsub()`: substitute the first occurrence or all occurrences  
+- `grep()` (and similar): search for matches to an argument  
+We'll practice data cleaning later on with `stringr`, a `tidyverse` package. For now, here are those functions in action:  
+
+```{r}
+
+iris_names <- names(iris)
+
+# make names lowercase
+iris_names <- tolower(iris_names)
+
+# it's good practice to have variable names with lengths shorter than 30 characters - the shorter the better (as long as names are clear, unique, and consistent); check ours
+nchar(iris_names) < 30
+
+# include units in variable names
+iris_names[1:4] <- paste(iris_names[1:4], "cm", sep = "_")
+
+# substitute periods with underscores (using "\\." to escape, as "." is a special character)
+# this:
+iris_names <- gsub("\\.", "_", iris_names)
+# not this:
+# gsub(".", "_", iris_names)
+
+# find variables which contain "petal"
+grep("petal", iris_names) # true at the third and fourth positions
+grep("petal", iris_names, value = TRUE) # what are the values at these positions?
+
+# compare
+data.frame("before" = names(iris),
+           "after" = iris_names)
+
+```
+
+`NA` is a sometimes troublesome but very common data "type". Consider the following:  
+
+```{r}
+
+na_char <- c("M", "F", "F", "M", 
+             "F", "", " ", NA)
+
+na_num <- c(1, 2, 3, 4, 5,
+            "", " ", NA)
+
+```
+
+We can see this vector is missing three values. When working with lots of data, this may not always be clear, and our normal test for missingness (`is.na()`) will not work. 
+
+```{r}
+
+is.na(na_char)
+is.na(na_num)
+
+summary(na_char)
+summary(na_num)
+
+```
+
+Because `na_num` contains characters, all observations were converted to character types. Let's fix this and see if we can detect missingness now.  
+
+```{r}
+
+na_num <- as.numeric(na_num)
+
+na_num
+
+is.na(na_num)
+
+```
+
+The `na_char` vector is more problematic. If there is a limited number of observation types, we can use the `table()` function to identify missingness.  
+
+```{r}
+
+table(na_char)
+
+```
+
+(Note we could also use `nchar()` to identify empty strings ("").)  
+
+We know there are eight values, but one is missing and two appear to have no label ("", " "). But this is fixable! We'll address it with the `ifelse()` function in base R, but keep in mind that packages have fancier functions for fixing this problem (at fixing it at scale, potentially across many variables).  
+
+```{r}
+
+?ifelse
+
+na_char <- ifelse(na_char == " ", NA, na_char)
+na_char <- ifelse(na_char == "", NA, na_char)
+
+na_char <- ifelse(na_char %in% c("", " "), NA, na_char)
+
+```
+
+Another problem you may encounter with variable types is numbers which contain characters (e.g., "1,000").  
+
+```{r}
+
+x <- c("998", "999", "1,000")
+
+as.numeric(x)
+
+```
+
+There are a handful of tricks to deal with this — but for now, just know that this is also fixable! Pay attention to the warning messages (errors stop code from running, warnings do not).  
+
+```{r}
+
+x <- as.numeric(
+  gsub(",", "", x) # useful little function
+)
+
+```
+
+Before moving on to functions, let's look at value comparison with logical operators (==, <, >, <=, >=, !=). These are pretty intuitive. Try some comparisons of the values below.  
+
+```{r}
+
+a = 5
+b = 10
+c = 15
+d = c(5, 9, 14)
+
+```
+
+The next module can be found in `02_pkg_functions.qmd`.  
+
