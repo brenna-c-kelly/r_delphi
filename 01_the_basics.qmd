@@ -52,7 +52,7 @@ length(v)
 
 ```
 
-We can access individual data points from the vector using **indexing** notation, as in `v[i]`.
+We can access individual data points from the vector using **index** notation, as in `v[i]`.
 
 ```{r}
 
@@ -409,6 +409,8 @@ x <- as.numeric(
 
 ```
 
+## Comparators
+
 Before moving on to functions, let's look at value comparison with logical operators (==, <, >, <=, >=, !=). These are pretty intuitive. Try some comparisons of the values below.  
 
 ```{r}
@@ -419,6 +421,49 @@ c = 15
 d = c(5, 9, 14)
 
 ```
+
+## Subsetting and selecting
+
+We often need to extract a portion of a dataset. We saw above how to select certain columns by name and rows/columns with index notation. With the comparators above, we can useuse indexing to include only values meeting certain criteria. Recall that a portion of a data.frame can be extracted with some form of this notation: `data[row_id, col_id]` or `data[row_id:other_row_id, ]`. (Also recall that it's better to select by column names than numbers.)  
+
+If we want to exclude iris observations which have sepal widths smaller than 3 cm, we can use index notation with a comparator:  
+
+```{r}
+
+iris$Sepal.Width < 3
+
+iris[iris$Sepal.Width < 3, ]
+
+```
+
+If we want to exclude iris observations for the setosa species, we could similarly:  
+
+```{r}
+
+iris[iris$Species != "setosa", ]
+
+```
+
+This could also be accomplished with `subset()`, a function with the following syntax:  
+
+`subset(data, logical_expression)`  
+
+With this notation, we don't need to include the name of the dataframe (`data$`), only the variable name. Try performing the same exlusion above with the `subset()` function.
+
+```{r}
+
+subset(iris, Species != "setosa")
+
+```
+
+Can you think of a different implementation of `subset()` which could achieve the same result?  
+
+```{r}
+
+subset(iris, Species == c("versicolor", "virginica"))
+
+```
+
 
 The next module can be found in `02_pkg_functions.qmd`.  
 
